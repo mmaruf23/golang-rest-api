@@ -1,0 +1,23 @@
+POST http://localhost:8080/api/categories
+Content-Type: application/json
+
+{
+  "name": "Category 3"
+}
+
+###
+
+GET http://localhost:8080/api/categories
+
+
+###
+GET http://localhost:8080/api/categories/1
+
+###
+
+PUT http://localhost:8080/api/categories/4
+Content-Type: application/json
+
+{
+  "name": "Category 4"
+}
