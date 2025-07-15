@@ -2,23 +2,23 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/julienschmidt/httprouter"
 	"github.com/mmaruf23/golang-rest-api/config"
-	"github.com/mmaruf23/golang-rest-api/internal/app/handler"
-	"github.com/mmaruf23/golang-rest-api/internal/app/repository"
-	"github.com/mmaruf23/golang-rest-api/internal/app/service"
-	"github.com/mmaruf23/golang-rest-api/pkg/database"
+	"github.com/mmaruf23/golang-rest-api/internal/app"
+	"github.com/mmaruf23/golang-rest-api/internal/controller"
+	"github.com/mmaruf23/golang-rest-api/internal/helper"
+	"github.com/mmaruf23/golang-rest-api/internal/middleware"
+	"github.com/mmaruf23/golang-rest-api/internal/repository"
+	"github.com/mmaruf23/golang-rest-api/internal/service"
 )
 
 func main() {
 	appConfig := config.LoadConfig()
 
-	db := database.NewMySQLConnection(appConfig)
+	db := app.NewMySQLConnection(appConfig)
 	defer func(db *sql.DB) {
 		err := db.Close()
 		if err != nil {
@@ -29,20 +29,18 @@ func main() {
 	validate := validator.New()
 
 	categoryRepository := repository.NewCategoryRepository(db)
-
-	categoryService := service.NewCategoryService(categoryRepository, validate)
-
-	categoryHanlder := handler.NewCategoryHandler(categoryService)
-
-	router := httprouter.New()
-
-	router.POST("/api/categories", categoryHanlder.Create)
-	router.PUT("/api/categories/:categoryId", categoryHanlder.Update)
-	router.DELETE("/api/categories/:categoryId", categoryHanlder.Delete)
-	router.GET("/api/categories/:categoryId", categoryHanlder.FindById)
-	router.GET("/api/categories", categoryHanlder.FindAll)
+	categoryService := service.NewCategoryService(categoryRepository, db, validate)
+	categoryController := controller.NewCategoryController(categoryService)
+	router := app.NewRouter(categoryController)
 
 	port := config.LoadConfig().ServerPort
-	fmt.Printf("Server running on PORT %s\n", port)
-	log.Fatal(http.ListenAndServe(":"+port, router))
+
+	server := http.Server{
+		Addr:    "localhost:" + port,
+		Handler: middleware.NewAuthMiddleware(router),
+	}
+
+	err := server.ListenAndServe()
+	helper.PanicIfError(err)
+
 }
