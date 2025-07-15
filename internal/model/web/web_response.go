@@ -1,4 +1,4 @@
-package domain
+package web
 
 type WebResponse struct {
 	Code   int         `json:"code"`
@@ -7,7 +7,7 @@ type WebResponse struct {
 }
 
 type ErrorResponse struct {
-	Code    int    `json:"code"`
-	Status  string `json:"status"`
-	Message string `json:"message"`
+	Code    int         `json:"code"`
+	Status  string      `json:"status"`
+	Message interface{} `json:"message"`
 }

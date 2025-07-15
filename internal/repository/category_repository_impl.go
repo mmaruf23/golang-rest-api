@@ -1,31 +1,24 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 
-	"github.com/mmaruf23/golang-rest-api/internal/domain"
 	"github.com/mmaruf23/golang-rest-api/internal/helper"
+	"github.com/mmaruf23/golang-rest-api/internal/model/domain"
 )
 
 type CategoryRepositoryImpl struct {
-	DB *sql.DB
 }
 
 func NewCategoryRepository(db *sql.DB) CategoryRepository {
-	return &CategoryRepositoryImpl{DB: db}
+	return &CategoryRepositoryImpl{}
 }
 
-func (repository *CategoryRepositoryImpl) Save(category domain.Category) domain.Category {
+func (repository *CategoryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category {
 	query := "INSERT INTO categories(name) VALUES (?)"
-	stmt, err := repository.DB.Prepare(query)
-
-	helper.PanicIfError(err)
-	defer stmt.Close()
-
-	// kalau mau pake timestamp update bisa disini sekarang mah kagak dulu
-
-	result, err := stmt.Exec(category.Name)
+	result, err := tx.ExecContext(ctx, query, category.Name)
 	helper.PanicIfError(err)
 
 	id, err := result.LastInsertId()
@@ -37,34 +30,26 @@ func (repository *CategoryRepositoryImpl) Save(category domain.Category) domain.
 	return category
 }
 
-func (repository *CategoryRepositoryImpl) Update(category domain.Category) domain.Category {
+func (repository *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category {
 	query := "UPDATE categories SET name = ? WHERE id = ?"
-	stmt, err := repository.DB.Prepare(query)
-	helper.PanicIfError(err)
-	defer stmt.Close()
-
-	_, err = stmt.Exec(category.Name, category.Id)
+	_, err := tx.ExecContext(ctx, query, category.Name, category.Id)
 	helper.PanicIfError(err)
 
 	fmt.Printf("Category Updated with ID: %d\n", category.Id)
 	return category
 }
 
-func (repository *CategoryRepositoryImpl) Delete(categoryId int) {
+func (repository *CategoryRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, category domain.Category) {
 	query := "DELETE from categories WHERE id = ?"
-	stmt, err := repository.DB.Prepare(query)
-	helper.PanicIfError(err)
-	defer stmt.Close()
-
-	_, err = stmt.Exec(categoryId)
+	_, err := tx.ExecContext(ctx, query, category.Id)
 	helper.PanicIfError(err)
 
-	fmt.Printf("Category Deleted with ID: %d\n", categoryId)
+	fmt.Printf("Category Deleted with ID: %d\n", category.Id)
 }
 
-func (repository *CategoryRepositoryImpl) FindById(categoryId int) (domain.Category, error) {
+func (repository *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, categoryId int) (domain.Category, error) {
 	query := "SELECT id, name FROM categories WHERE id = ?"
-	rows, err := repository.DB.Query(query, categoryId)
+	rows, err := tx.QueryContext(ctx, query, categoryId)
 	helper.PanicIfError(err)
 	defer rows.Close()
 
@@ -78,9 +63,9 @@ func (repository *CategoryRepositoryImpl) FindById(categoryId int) (domain.Categ
 	}
 }
 
-func (repository *CategoryRepositoryImpl) FindAll() []domain.Category {
+func (repository *CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []domain.Category {
 	query := "SELECT id, name FROM categories"
-	rows, err := repository.DB.Query(query)
+	rows, err := tx.QueryContext(ctx, query)
 	helper.PanicIfError(err)
 	defer rows.Close()
 
