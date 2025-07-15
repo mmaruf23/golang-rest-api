@@ -1,23 +1,34 @@
-POST http://localhost:8080/api/categories
-Content-Type: application/json
-
-{
-  "name": "Category 3"
-}
-
-###
-
+### Get all categories
 GET http://localhost:8080/api/categories
+X-API-Key: RAHASIA
+Accept: application/json
 
-
-###
-GET http://localhost:8080/api/categories/1
-
-###
-
-PUT http://localhost:8080/api/categories/4
+### Create new category
+POST http://localhost:8080/api/categories
+X-API-Key: RAHASIA
+Accept: application/json
 Content-Type: application/json
 
 {
-  "name": "Category 4"
+  "name" : "Category 4"
 }
+
+### Get category by Id
+GET http://localhost:8080/api/categories/2
+X-API-Key: RAHASIA
+Accept: application/json
+
+### Update category by id
+PUT http://localhost:8080/api/categories/5
+X-API-Key: RAHASIA
+Accept: application/json
+Content-Type: application/json
+
+{
+  "name" : "Category 5"
+}
+
+### Delete category by id
+DELETE http://localhost:8080/api/categories/5
+X-API-Key: RAHASIA
+Accept: application/json
