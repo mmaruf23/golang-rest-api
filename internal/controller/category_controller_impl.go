@@ -24,7 +24,7 @@ func (controller *CategoryControllerImpl) Create(w http.ResponseWriter, r *http.
 	helper.ReadFromRequestBody(r, &categoryCreateRequest)
 
 	categoryResponse := controller.CategoryService.Create(r.Context(), categoryCreateRequest)
-
+	w.WriteHeader(http.StatusCreated)
 	webResponse := web.WebResponse{
 		Code:   http.StatusCreated,
 		Status: "CREATED",

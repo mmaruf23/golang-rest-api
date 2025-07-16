@@ -25,7 +25,7 @@ import (
 )
 
 func setupTestDB() *sql.DB {
-	db, err := sql.Open("mysql", "root@tcp(localhost:3306)/belajar_golang_restful_api_test")
+	db, err := sql.Open("mysql", "root@tcp(localhost:3306)/golang_restapi")
 	helper.PanicIfError(err)
 
 	db.SetMaxIdleConns(5)
@@ -47,7 +47,7 @@ func setupRouter(db *sql.DB) http.Handler {
 }
 
 func truncateCategory(db *sql.DB) {
-	db.Exec("TRUNCATE category")
+	db.Exec("TRUNCATE categories")
 }
 
 func TestCreateCategorySuccess(t *testing.T) {
@@ -65,14 +65,14 @@ func TestCreateCategorySuccess(t *testing.T) {
 	router.ServeHTTP(recorder, request)
 
 	response := recorder.Result()
-	assert.Equal(t, 200, response.StatusCode)
+	assert.Equal(t, 201, response.StatusCode)
 
 	body, _ := io.ReadAll(response.Body)
 	var responseBody map[string]interface{}
 	json.Unmarshal(body, &responseBody)
 
-	assert.Equal(t, 200, int(responseBody["code"].(float64)))
-	assert.Equal(t, "OK", responseBody["status"])
+	assert.Equal(t, 201, int(responseBody["code"].(float64)))
+	assert.Equal(t, "CREATED", responseBody["status"])
 	assert.Equal(t, "Gadget", responseBody["data"].(map[string]interface{})["name"])
 }
 

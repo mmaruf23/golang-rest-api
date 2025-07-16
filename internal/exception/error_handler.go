@@ -42,11 +42,11 @@ func notFoundError(w http.ResponseWriter, err interface{}) bool {
 	exception, ok := err.(NotFoundError)
 	if ok {
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
 
 		errorResponse := web.ErrorResponse{
-			Code:    http.StatusBadRequest,
-			Status:  "BAD REQUEST",
+			Code:    http.StatusNotFound,
+			Status:  "NOT FOUND",
 			Message: exception.Error,
 		}
 

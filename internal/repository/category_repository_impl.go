@@ -12,7 +12,7 @@ import (
 type CategoryRepositoryImpl struct {
 }
 
-func NewCategoryRepository(db *sql.DB) CategoryRepository {
+func NewCategoryRepository() CategoryRepository {
 	return &CategoryRepositoryImpl{}
 }
 
