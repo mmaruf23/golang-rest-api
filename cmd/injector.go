@@ -1,9 +1,11 @@
+//go:build wireinject
+// +build wireinject
+
 package main
 
 import (
 	"net/http"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/google/wire"
 	"github.com/julienschmidt/httprouter"
 	"github.com/mmaruf23/golang-rest-api/config"
@@ -26,7 +28,7 @@ var categorySet = wire.NewSet(
 func InitializeServer(appConfig *config.AppConfig) *http.Server {
 	wire.Build(
 		app.NewMySQLConnection,
-		validator.New,
+		app.NewValidator,
 		categorySet,
 		app.NewRouter,
 		wire.Bind(new(http.Handler), (new(*httprouter.Router))),
